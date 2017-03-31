@@ -1,10 +1,6 @@
 /* Gaussian elimination without pivoting.
- * Compile with "gcc gauss.c" 
- */
-
-/* ****** ADD YOUR CODE AT THE END OF THIS FILE. ******
- * You need not submit the provided code.
- */
+Compile using mpicc gauss_mpi.c
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,9 +10,8 @@
 #include <sys/times.h>
 #include <sys/time.h>
 #include <time.h>
-/*Include mpi library t use the MPI functions*/
 #include <string.h>
-
+/*Include mpi library to use the MPI functions*/
 #include <mpi.h>
 
 /* Program Parameters */
@@ -29,7 +24,6 @@ float A[MAXN][MAXN], B[MAXN], X[MAXN], C[MAXN];
 /* A * X = B, solve for X */
 /* declared a variable for file name to put the output in a file*/
 char *nameOfOutputFile;
-
 /* junk */
 #define randm() 4|2[uid]&3
 /* Variables containing process rank and total no. of processes*/
@@ -59,32 +53,30 @@ void parameters(int argc, char **argv) {
   srand(time_seed());  /* Randomize */
  /* reading the output file name from command line arguments and initializing the file name variable*/
   if (argc == 4) {
-		int length=strlen(argv[3]);
+	int length=strlen(argv[3]);
       	nameOfOutputFile=(char*)malloc(length+1);
       	nameOfOutputFile=argv[3];
-      
-    seed = atoi(argv[2]);
-    srand(seed);
-    printf("Random seed = %i\n", seed);
+      	seed = atoi(argv[2]);
+    	srand(seed);
+    	printf("Random seed = %i\n", seed);
   } 
   if (argc >= 2) {
-    N = atoi(argv[1]);
-    if (N < 1 || N > MAXN) {
-      printf("N = %i is out of range.\n", N);
-      exit(0);
-    }
+    	N = atoi(argv[1]);
+    		if (N < 1 || N > MAXN) {
+      			printf("N = %i is out of range.\n", N);
+      			exit(0);
+    		}
   }
   else {
-    printf("Usage: %s <matrix_dimension> <random seed> <output_file_name>\n",
+    	printf("Usage: %s <matrix_dimension> <random seed> <output_file_name>\n",
            argv[0]);    
-    exit(0);
+    	exit(0);
   }
 
 if(process_Id==0){
-  /* Print parameters */
-  printf("\nMatrix dimension N = %i.\n", N);
+  	/* Print parameters */
+  	printf("\nMatrix dimension N = %i.\n", N);
 }
-  
 }
 
 /* Initialize A and B (and X to 0.0s) */
@@ -99,7 +91,6 @@ void initialize_inputs() {
     B[col] = (float)rand() / 32768.0;
     X[col] = 0.0;
   }
-
 }
 
 /* Print input matrices */
@@ -121,20 +112,19 @@ void print_inputs() {
 }
 /* Print  matrices to output file*/
 void print_outputs(FILE *outputfilePtr) {
-  int row, col;
-
-  if (N < 10) {
-    fprintf(outputfilePtr, "\nA =\n\t");
-    for (row = 0; row < N; row++) {
-      for (col = 0; col < N; col++) {
-        fprintf(outputfilePtr, "%9.6f%s", A[row][col], (col < N - 1) ? ", " : ";\n\t");
-      }
-    }
-    fprintf(outputfilePtr, "\nB = [");
-    for (col = 0; col < N; col++) {
-      fprintf(outputfilePtr, "%9.6f%s", B[col], (col < N - 1) ? "; " : "]\n");
-    }
-  }
+  	int row, col;
+  	if (N < 10) {
+   		fprintf(outputfilePtr, "\nA =\n\t");
+    		for (row = 0; row < N; row++) {
+      				for (col = 0; col < N; col++) {
+        		fprintf(outputfilePtr, "%9.6f%s", A[row][col], (col < N - 1) ? ", " : ";\n\t");
+		}
+    	}
+    		fprintf(outputfilePtr, "\nB = [");
+    		for (col = 0; col < N; col++) {
+      			fprintf(outputfilePtr, "%9.6f%s", B[col], (col < N - 1) ? "; " : "]\n");
+    		}
+  	}
 }
 
 void print_X() {
@@ -218,25 +208,26 @@ int main(int argc, char **argv) {
   print_X_Output(outputfilePtr);
 
   /* Display timing results */
-/* Display timing results to the output fi;e */
-    fprintf(outputfilePtr,"\nElapsed time = %g ms.\n",
-        (float)(usecstop - usecstart)/(float)1000);
+  
+  /* Display timing results to the output fi;e */
+  fprintf(outputfilePtr,"\nElapsed time = %g ms.\n",
+  	(float)(usecstop - usecstart)/(float)1000);
 
-    fprintf(outputfilePtr,"(CPU times are accurate to the nearest %g ms)\n",
-        1.0/(float)CLOCKS_PER_SEC * 1000.0);
-    fprintf(outputfilePtr,"My total CPU time for parent = %g ms.\n",
+  fprintf(outputfilePtr,"(CPU times are accurate to the nearest %g ms)\n",
+  	1.0/(float)CLOCKS_PER_SEC * 1000.0);
+  fprintf(outputfilePtr,"My total CPU time for parent = %g ms.\n",
         (float)( (cputstop.tms_utime + cputstop.tms_stime) -
           (cputstart.tms_utime + cputstart.tms_stime) ) /
         (float)CLOCKS_PER_SEC * 1000);
-    fprintf(outputfilePtr,"My system CPU time for parent = %g ms.\n",
+  fprintf(outputfilePtr,"My system CPU time for parent = %g ms.\n",
         (float)(cputstop.tms_stime - cputstart.tms_stime) /
         (float)CLOCKS_PER_SEC * 1000);
-    fprintf(outputfilePtr,"My total CPU time for child processes = %g ms.\n",
+  fprintf(outputfilePtr,"My total CPU time for child processes = %g ms.\n",
         (float)( (cputstop.tms_cutime + cputstop.tms_cstime) -
           (cputstart.tms_cutime + cputstart.tms_cstime) ) /
         (float)CLOCKS_PER_SEC * 1000);
-    /* Contrary to the man pages, this appears not to include the parent */
-    fprintf(outputfilePtr,"--------------------------------------------\n");
+  /* Contrary to the man pages, this appears not to include the parent */
+  fprintf(outputfilePtr,"--------------------------------------------\n");
   }
 
   MPI_Finalize();/*Terminate MPI environment*/
@@ -252,21 +243,15 @@ int main(int argc, char **argv) {
  */
 void gauss() {
 
-   
-   
   int norm, row, col;  /* Normalization row, and zeroing
 			* element row and col */
- 
   int rows_of_Process[N];
 
   printf("********Computing Parallely using MPI*********\n");
-/* Process_Id 0 is Broadcasting the row A[0] and vector B to all the processes*/
+  /* Process_Id 0 is Broadcasting the row A[0] and vector B to all the processes*/
 
   MPI_Bcast(&A[0][0],MAXN*MAXN,MPI_FLOAT,0,MPI_COMM_WORLD);
   MPI_Bcast(B,N,MPI_FLOAT,0,MPI_COMM_WORLD);    
-
- 
-
       for(row=0; row<N; row++)
       {
           rows_of_Process[row]= row % no_Of_Processes;
@@ -297,23 +282,15 @@ void gauss() {
               }
           }
       }
-
-
-
-
-   if (process_Id==0){
+  if (process_Id==0){
  /* Back substitution */
   for (row = N - 1; row >= 0; row--) {
     X[row] = B[row];
     for (col = N-1; col > row; col--) {
       X[row] -= A[row][col] * X[col];
       
-    }
-   
-    X[row] /= A[row][row];
-    
+    }   
+    X[row] /= A[row][row];  
   }
 }
-
- 
 }
